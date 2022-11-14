@@ -5,38 +5,30 @@ from simple_facerec import SimpleFacerec
 sfr = SimpleFacerec()
 sfr.load_encoding_images("images/")
 
-# Load Camera
-cap = cv2.VideoCapture(0)
+class Video(object):
+    def __init__(self):
+        self.video=cv2.VideoCapture(0)
+    def __del__(self):
+        self.video.release()
+    def get_frame(self):
+        ret,frame=self.video.read()
+        face_locations, face_names = sfr.detect_known_faces(frame)
+        for face_loc, name in zip(face_locations, face_names):
+          y1, x2, y2, x1 = face_loc[0], face_loc[1], face_loc[2], face_loc[3]
 
+          cv2.putText(frame, name,(x1, y1 - 10), cv2.FONT_HERSHEY_DUPLEX, 1, (0, 0, 200), 2)
+          cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 200), 1)
 
-while True:
-    ret, frame = cap.read()
+          cv2.line(frame, (x1,y1) , (x1+30 , y1) , (255,0,255), 6) #Top Left
+          cv2.line(frame, (x1,y1) , (x1 , y1+30) , (255,0,255), 6) #Top Left
 
-    # Detect Faces
-    face_locations, face_names = sfr.detect_known_faces(frame)
-    for face_loc, name in zip(face_locations, face_names):
-        y1, x2, y2, x1 = face_loc[0], face_loc[1], face_loc[2], face_loc[3]
+          cv2.line(frame, (x2,y1) , (x2-30 , y1) , (255,0,255), 6) #Top Right
+          cv2.line(frame, (x2,y1) , (x2 , y1+30) , (255,0,255), 6) #Top Right
 
-        cv2.putText(frame, name,(x1, y1 - 10), cv2.FONT_HERSHEY_DUPLEX, 1, (0, 0, 200), 2)
-        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 200), 1)
+          cv2.line(frame, (x1,y2) , (x1+30 , y2) , (255,0,255), 6) #Bottom Left
+          cv2.line(frame, (x1,y2) , (x1 , y2-30) , (255,0,255), 6) #Bottom Left
 
-        cv2.line(frame, (x1,y1) , (x1+30 , y1) , (255,0,255), 6) #Top Left
-        cv2.line(frame, (x1,y1) , (x1 , y1+30) , (255,0,255), 6) #Top Left
-
-        cv2.line(frame, (x2,y1) , (x2-30 , y1) , (255,0,255), 6) #Top Right
-        cv2.line(frame, (x2,y1) , (x2 , y1+30) , (255,0,255), 6) #Top Right
-
-        cv2.line(frame, (x1,y2) , (x1+30 , y2) , (255,0,255), 6) #Bottom Left
-        cv2.line(frame, (x1,y2) , (x1 , y2-30) , (255,0,255), 6) #Bottom Left
-
-        cv2.line(frame, (x2,y2) , (x2-30 , y2) , (255,0,255), 6) #Bottom Right
-        cv2.line(frame, (x2,y2) , (x2 , y2-30) , (255,0,255), 6) #Bottom Right
-
-    cv2.imshow("Frame", frame)
-
-    key = cv2.waitKey(1)
-    if key == 27:
-        break
-
-cap.release()
-cv2.destroyAllWindows()
+          cv2.line(frame, (x2,y2) , (x2-30 , y2) , (255,0,255), 6) #Bottom Right
+          cv2.line(frame, (x2,y2) , (x2 , y2-30) , (255,0,255), 6) #Bottom Right
+        ret,jpg=cv2.imencode('.jpg',frame)
+        return jpg.tobytes()

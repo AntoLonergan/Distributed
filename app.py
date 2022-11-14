@@ -21,4 +21,4 @@ def video():
     return Response(gen(Video()),
     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-app.run(host='0.0.0.0' , debug=True)
+app.run(host='localhost' , debug=True)
