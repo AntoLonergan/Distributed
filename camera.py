@@ -1,28 +1,42 @@
 import cv2
+from simple_facerec import SimpleFacerec
 
-faceDetect=cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-class Video(object):
-    def __init__(self):
-        self.video=cv2.VideoCapture(0)
-    def __del__(self):
-        self.video.release()
-    def get_frame(self):
-        ret,frame=self.video.read()
-        faces=faceDetect.detectMultiScale(frame, 1.3,5)
-        for x,y,w,h in faces:
-           x1,y1 = x+w, y+h
-           cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,255),1)
+# Encode faces from a folder
+sfr = SimpleFacerec()
+sfr.load_encoding_images("images/")
 
-           cv2.line(frame, (x,y) , (x+30 , y) , (255,0,255), 6) #Top Left
-           cv2.line(frame, (x,y) , (x , y+30) , (255,0,255), 6) #Top Left
+# Load Camera
+cap = cv2.VideoCapture(0)
 
-           cv2.line(frame, (x1,y) , (x1-30 , y) , (255,0,255), 6) #Top Right
-           cv2.line(frame, (x1,y) , (x1 , y+30) , (255,0,255), 6) #Top Right
 
-           cv2.line(frame, (x,y1) , (x+30 , y1) , (255,0,255), 6) #Bottom Left
-           cv2.line(frame, (x,y1) , (x , y1-30) , (255,0,255), 6) #Bottom Left
+while True:
+    ret, frame = cap.read()
 
-           cv2.line(frame, (x1,y1) , (x1-30 , y1) , (255,0,255), 6) #Bottom Right
-           cv2.line(frame, (x1,y1) , (x1 , y1-30) , (255,0,255), 6) #Bottom Right
-        ret,jpg=cv2.imencode('.jpg',frame)
-        return jpg.tobytes()
+    # Detect Faces
+    face_locations, face_names = sfr.detect_known_faces(frame)
+    for face_loc, name in zip(face_locations, face_names):
+        y1, x2, y2, x1 = face_loc[0], face_loc[1], face_loc[2], face_loc[3]
+
+        cv2.putText(frame, name,(x1, y1 - 10), cv2.FONT_HERSHEY_DUPLEX, 1, (0, 0, 200), 2)
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 200), 1)
+
+        cv2.line(frame, (x1,y1) , (x1+30 , y1) , (255,0,255), 6) #Top Left
+        cv2.line(frame, (x1,y1) , (x1 , y1+30) , (255,0,255), 6) #Top Left
+
+        cv2.line(frame, (x2,y1) , (x2-30 , y1) , (255,0,255), 6) #Top Right
+        cv2.line(frame, (x2,y1) , (x2 , y1+30) , (255,0,255), 6) #Top Right
+
+        cv2.line(frame, (x1,y2) , (x1+30 , y2) , (255,0,255), 6) #Bottom Left
+        cv2.line(frame, (x1,y2) , (x1 , y2-30) , (255,0,255), 6) #Bottom Left
+
+        cv2.line(frame, (x2,y2) , (x2-30 , y2) , (255,0,255), 6) #Bottom Right
+        cv2.line(frame, (x2,y2) , (x2 , y2-30) , (255,0,255), 6) #Bottom Right
+
+    cv2.imshow("Frame", frame)
+
+    key = cv2.waitKey(1)
+    if key == 27:
+        break
+
+cap.release()
+cv2.destroyAllWindows()
