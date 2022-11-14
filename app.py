@@ -1,8 +1,9 @@
 from flask import Flask, Response, render_template
-
+from flask_socketio import SocketIO
 from camera import Video
 
 app=Flask(__name__)
+socketioApp = SocketIO(app)
 
 @app.route('/')
 def index():
@@ -21,4 +22,8 @@ def video():
     return Response(gen(Video()),
     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-app.run(host='localhost' , debug=True)
+def run():
+    socketioApp.run(app)
+
+if __name__ == '__main__':
+    socketioApp.run(app)
