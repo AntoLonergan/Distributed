@@ -12,8 +12,6 @@ class Video(object):
         self.video.release()
     def get_frame(self):
         ret,frame=self.video.read()
-        start_frame_number = 50
-        self.video.set(cv2.CAP_PROP_POS_FRAMES, start_frame_number)
         frame = cv2.resize(frame, (426,240))
         face_locations, face_names = sfr.detect_known_faces(frame)
         for face_loc, name in zip(face_locations, face_names):
