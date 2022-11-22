@@ -2,6 +2,7 @@ from flask import Flask, Response, render_template
 from flask_socketio import SocketIO
 from camera import Video
 
+
 app=Flask(__name__)
 socketioApp = SocketIO(app)
 
@@ -21,6 +22,7 @@ def gen(camera):
 def video():
     return Response(gen(Video()),
     mimetype='multipart/x-mixed-replace; boundary=frame')
+    
 
 def run():
     socketioApp.run(app)
